@@ -1,0 +1,14 @@
+- hosts: "{{ deploy_host | default('dev') }}"
+  gather_facts: true
+  become: false
+  vars:
+    base_dir: "~/app/"
+  environment:
+    AWS_ACCESS_KEY_ID: "{{ lookup('env', 'AWS_ACCESS_KEY_ID') }}"
+    AWS_SECRET_ACCESS_KEY: "{{ lookup('env', 'AWS_SECRET_ACCESS_KEY') }}"
+    AWS_DEFAULT_REGION: "{{AWS_DEFAULT_REGION}}" #"{{ lookup('env', 'AWS_DEFAULT_REGION') }}"
+    AWS_DEFAULT_OUTPUT: "{{AWS_DEFAULT_OUTPUT}}" #"{{ lookup('env', 'AWS_DEFAULT_OUTPUT') }}"
+  roles:
+    - { role: s3download , project_id: user-api, artifact_type: war, s3_bucket_name: jvcdp-repo}
+    - { role: s3download , project_id: environment-api, artifact_type: war, s3_bucket_name: jvcdp-repo}
+    - { role: s3download , project_id: dashboard-api, artifact_type: war, s3_bucket_name: jvcdp-repo}

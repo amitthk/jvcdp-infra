@@ -1,0 +1,5 @@
+---
+s3_aws_access_key: "{{ lookup('env','AWS_ACCESS_KEY_ID') }}"
+s3_aws_secret_key: "{{ lookup('env','AWS_SECRET_ACCESS_KEY') }}"
+AWS_DEFAULT_REGION: "{{ lookup('env', 'AWS_DEFAULT_REGION') }}"
+AWS_DEFAULT_OUTPUT: "json"

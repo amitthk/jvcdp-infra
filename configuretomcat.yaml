@@ -1,0 +1,37 @@
+- hosts: "{{ deploy_host | default('dev') }}"
+  gather_facts: true
+  become: true
+  vars:
+    base_dir: "~/app/"
+    http_port: 8080
+  tasks:
+    - name: ping the server
+      raw: echo ping-pong
+
+    - name: Install Tomcat init script
+      copy:
+        src: tomcat-initscript.sh
+        dest: /etc/init.d/tomcat
+        owner: tomcat
+        mode: 0755
+
+    # - name: systemd daemon-reload
+    #   shell: systemctl daemon-reload
+
+    # - name: systemctl is-enabled tomcat
+    #   shell: systemctl is-enabled tomcat
+    #   register: resp
+    #   ignore_errors: true
+    - name: auto startup tomcat service
+      shell: chkconfig tomcat on
+
+    - debug:
+        var: resp
+
+    - name: tomcat-8-start
+      service:
+        name: tomcat
+        state: started
+
+    - name: wait for tomcat to start
+      wait_for: port={{ http_port }}

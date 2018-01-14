@@ -1,0 +1,12 @@
+- hosts: "{{ deploy_host | default('dev') }}"
+  gather_facts: true
+  become: false
+  vars:
+    base_dir: "~/app/"
+  # vars_prompt:
+  #   - name: "ansible_sudo_pass"
+  #     prompt: "Sudo password"
+  #     private: yes
+  roles:
+    - testpostgresconn
+

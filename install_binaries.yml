@@ -1,0 +1,7 @@
+---
+- hosts: "{{ deploy_host | default('dev') }}"
+  become: false
+  gather_facts: false
+  roles:
+   - name: download-binaries
+   - name: install-binaries 

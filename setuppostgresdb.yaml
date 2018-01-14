@@ -1,0 +1,8 @@
+- hosts: "{{ deploy_host | default('dev') }}"
+  gather_facts: true
+  become: false
+  vars:
+    base_dir: "~/app/"
+  roles:
+    - setuppostgresdb
+

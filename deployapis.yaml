@@ -1,0 +1,9 @@
+- hosts: "{{ deploy_host | default('dev') }}"
+  gather_facts: true
+  become: false
+  vars:
+    base_dir: "~/app/"
+  roles:
+    - { role: setupapiwar , project_id: user-api, warName: users.war, deploy_dir: users}
+    - { role: setupapiwar , project_id: environment-api, warName: environment.war, deploy_dir: environment}
+    - { role: setupapiwar , project_id: dashboard-api, warName: dashboard.war, deploy_dir: dashboard}

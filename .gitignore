@@ -1,0 +1,7 @@
+.project
+ansible/docker/devopsdashboard/app
+ansible/docker/user-api/app
+ansible/docker/dasboard-api/app
+ansible/docker/setup-api/app
+.DS_Store
+*.retry

@@ -1,0 +1,9 @@
+---
+- hosts: localhost
+  become: false
+  gather_facts: false
+ # vars:
+ #   ansible_connection: ssh
+ #   ansible_ssh_user: ubuntu
+  roles:
+    - name: provision

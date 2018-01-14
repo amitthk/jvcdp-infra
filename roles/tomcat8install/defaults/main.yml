@@ -1,0 +1,10 @@
+http_port: 8080
+https_port: 8443
+
+# This will configure a default manager-gui user:
+
+admin_username: admin
+admin_password: thetomcatadmin
+
+tomcat8_install_dir: "/opt/{{ tomcat8_file | regex_replace('.tar.gz')}}"
+jdk_install_dir: "/opt/{{ jdk8_file | regex_replace('.tar.gz')}}"

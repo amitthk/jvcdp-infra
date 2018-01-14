@@ -1,0 +1,37 @@
+---
+- stat: path={{tomcat_base_dir}}/bin/setenv.sh
+  register: setenv_status
+  become: true
+
+- name: create blank 'setenv'
+  file:
+    path: "{{tomcat_base_dir}}/bin/setenv.sh"
+    state: touch
+    owner: tomcat
+    group: tomcat
+    mode: 0755
+  when: setenv_status.stat.exists is defined and not setenv_status.stat.exists
+  become: true
+
+- name: Ensures {{tomcat_base_dir}}/bin/setenv.sh exists
+  file:
+    path: "{{tomcat_base_dir}}/bin/setenv.sh"
+    state: file
+    mode: 0755
+    owner: tomcat
+    group: tomcat
+  become: true
+  
+- name: Set the SPRING_PROFILES_ACTIVE in setenv.sh to keep it permanent
+  lineinfile: "dest={{tomcat_base_dir}}/bin/setenv.sh line='export SPRING_PROFILES_ACTIVE=local' insertafter='EOF' state=present mode=0755"
+  become: true
+  
+# - name: ensure SPRING_PROFILES_ACTIVE environment variable
+#   shell: "source {{tomcat_base_dir}}/bin/setenv.sh && echo $SPRING_PROFILES_ACTIVE"
+#   become: true
+#   become_user: tomcat
+#   args:
+#     executable: "/bin/bash"
+#   register: spring_profiles_active_value
+
+# - debug: var=spring_profiles_active_value

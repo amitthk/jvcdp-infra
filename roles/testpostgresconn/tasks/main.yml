@@ -1,0 +1,23 @@
+---
+## tasks file for testpostgresconn
+# - package:
+#     name: python-pip
+#     state: present
+#   become: true
+# - name: "Load host vars"
+#   include_vars: "./group_vars/{{ deploy_host | default('dev') }}.yaml"
+# - name: "Load all vars"
+#   include_vars: "./group_vars/all.yaml"
+
+- pip:
+    name: psycopg2
+    state: present
+  become: true
+
+- name: ensure database is created
+  postgresql_db:
+    login_host: "{{db_login_host}}"
+    port: "{{db_login_port}}"
+    login_password: "{{db_login_password}}"
+    login_user: "{{db_login_user}}"
+    name: "{{app_dbname}}"

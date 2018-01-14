@@ -1,0 +1,23 @@
+---
+ - name: giving permission to script file
+   file:
+    path: "{{ playbook_dir }}/terraform_files/provision.sh"
+    mode: 0777
+   become: true
+ - name: provision ec2 isntance using terraform
+   shell: "{{ playbook_dir }}/terraform_files/provision.sh"
+   args:
+    chdir: "{{ playbook_dir }}/terraform_files/"
+   environment:
+    PATH: /usr/bin:$PATH"
+   become_user: jenkins
+   become: true
+ - name: copy the inventory file to required location
+   copy:
+    src: "{{ playbook_dir }}/terraform_files/dev"
+    dest: "{{ playbook_dir }}/{{ deplpoy_env }}"
+    remote_src: true
+    mode: 0750 
+ - name: sleep for 30 seconds and continue with play
+   wait_for: timeout=30
+   delegate_to: localhost

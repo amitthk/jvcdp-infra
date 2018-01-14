@@ -1,0 +1,7 @@
+- hosts: "{{ deploy_host | default('dev') }}"
+  gather_facts: true
+  become: true
+  vars:
+    base_dir: "~/app/"
+  roles:
+    - tomcat8install

@@ -1,0 +1,31 @@
+---
+- include: setenv.yaml
+
+- name: "configure the API"
+  debug:
+    msg: configure the API
+- name: Ensures {{tomcat_base_dir}}/webapps/{{deploy_dir}} dir exists
+  file:
+    path: "{{tomcat_base_dir}}/webapps/{{deploy_dir}}"
+    state: directory
+  become: true
+
+- name: Ensure gtar/unzip is installed on target machine
+  package: name=unzip state=present
+  become: true
+
+- name: Unzip WAR file
+  unarchive:
+    src: "{{user_base_dir}}tmp/{{project_id}}/{{ warName }}"
+    dest: "{{tomcat_base_dir}}/webapps/{{deploy_dir}}/"
+    mode: 0755
+    remote_src: true
+    owner: tomcat
+    group: tomcat
+  become: true
+  notify:
+      - restart tomcat
+
+# - file:
+#     path: "{{base_dir}}docker/{{project_id}}/app/{{ warName }}"
+#     state: absent

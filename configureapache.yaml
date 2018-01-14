@@ -1,0 +1,32 @@
+- hosts: "{{ deploy_host | default('dev') }}"
+  gather_facts: true
+  become: true
+  vars:
+    base_dir: "~/app/"
+    http_port: 80
+    tomcat_public_ip: "{{inventory_hostname}}"
+  tasks:
+    - name: ping the server
+      raw: echo ping-pong
+    
+    - debug:
+        msg: "tomcat_public_ip {{tomcat_public_ip}} , inventory_hostname {{ inventory_hostname }} has gateway {{ ansible_default_ipv4.gateway }}"
+
+    - name: Create Reverse proxy config 
+      template: 
+        src: rev.httpd.conf.j2
+        dest: /etc/httpd/conf.d/rev.httpd.conf
+
+    - name: Set (httpd_can_network_connect) flag on and keep it persistent across reboots
+      seboolean:
+        name: httpd_can_network_connect
+        state: yes
+        persistent: yes 
+
+    - name: Restart Apache httpd
+      service:
+        name: httpd
+        state: restarted	
+
+    - name: wait for apache to start
+      wait_for: port={{ http_port }}

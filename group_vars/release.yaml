@@ -1,0 +1,11 @@
+---
+db_login_host: jvcdp.ctykhisjdh88.ap-southeast-1.rds.amazonaws.com
+db_login_user: postgres
+db_login_password: postgres
+app_dbname: devopsdashboard
+app_dbuser: sa
+app_dbpassword: passw0rd
+app_dbschemas:
+  - user_schema
+  - environment_schema
+  - dashboard_schema

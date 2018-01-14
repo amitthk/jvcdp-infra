@@ -1,0 +1,8 @@
+<VirtualHost *:80>
+ ServerAdmin admin@{{ tomcat_public_ip }}.org
+ ServerName {{ tomcat_public_ip }}
+ ServerAlias www.{{ tomcat_public_ip }}.org
+ ProxyPreserveHost On
+ ProxyPass / http://{{ tomcat_public_ip }}:8080/
+ ProxyPassReverse / http://{{ tomcat_public_ip }}:8080/
+</VirtualHost>

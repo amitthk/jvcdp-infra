@@ -1,0 +1,13 @@
+- hosts: "{{ deploy_host | default('dev') }}"
+  gather_facts: false
+  become: false
+  vars:
+    base_dir: "~/app/"
+  tasks:
+    - name: Bootstrap | Check python version
+      raw: python -V
+      register: python_version
+
+    - name: Bootstrap | Install ansible requirements
+      raw: yum install -y python-simplejson
+      when: python_version.stdout|search("2.4")

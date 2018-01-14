@@ -1,0 +1,127 @@
+---
+- name: "ensure /home/{{ansible_ssh_user}}/tmp exists"
+  file:
+    path: /home/{{ansible_ssh_user}}/tmp
+    state: directory
+
+- name: "delete the old jdk file"
+  file:
+    path: /home/{{ansible_ssh_user}}/tmp/{{jdk8_file}}
+    state: absent
+
+- name: "S3 GET {{jdk8_file}} from bucket"
+  s3:
+    aws_access_key: "{{ s3_aws_access_key }}"
+    aws_secret_key: "{{ s3_aws_secret_key }}"
+    bucket: jvcdp-repo
+    object: /vendor_binaries/{{jdk8_file}}
+    dest: "/home/{{ansible_ssh_user}}/tmp/{{jdk8_file}}"
+    mode: get
+#        state: latest
+
+- name: "set permissions for jdk file"
+  file:
+    path: /home/{{ansible_ssh_user}}/tmp/{{jdk8_file}}
+    mode: 777
+  become: true
+
+- name: Unarchive a {{jdk8_file}} file that is already on the remote machine
+  unarchive:
+    src: /home/{{ansible_ssh_user}}/tmp/{{jdk8_file}}
+    dest: /opt
+    copy: no
+#        remote_src: yes
+    mode: 777
+  become: true
+
+#- name: "Symlink jdk8 install directory: {{jdk_install_dir}}"
+#  file:
+#    src: /opt/{{jdk_install_dir}}
+#    path: /usr/share/java
+#    state: link
+
+- name: "delete the old {{tomcat8_file}} file"
+  file:
+    path: /home/{{ansible_ssh_user}}/tmp/{{tomcat8_file}}
+    state: absent
+
+- name: S3 GET {{tomcat8_file}} from bucket
+  s3:
+    aws_access_key: "{{ s3_aws_access_key }}"
+    aws_secret_key: "{{ s3_aws_secret_key }}"	
+    bucket: jvcdp-repo
+    object: /vendor_binaries/{{tomcat8_file}}
+    dest: "/home/{{ansible_ssh_user}}/tmp/{{tomcat8_file}}"
+    mode: get
+#        state: latest
+
+- name: add group "tomcat"
+  group: name=tomcat
+
+- name: add user "tomcat"
+  user:
+    name: tomcat
+    group: tomcat
+    home: /usr/share/tomcat 
+    createhome: no
+  become: true
+  become_method: sudo
+
+- name: "set permissions for {{tomcat8_file}} file"
+  file:
+    path: /home/{{ansible_ssh_user}}/tmp/{{tomcat8_file}}
+    mode: 777
+    owner: tomcat
+    group: tomcat
+  become: true
+
+- name: Unarchive a {{tomcat8_file}} file that is already on the remote machine
+  unarchive:
+    src: /home/{{ansible_ssh_user}}/tmp/{{tomcat8_file}}
+    dest: /opt
+    copy: no
+#        remote_src: yes
+    owner: tomcat
+    group: tomcat
+  become: true
+
+- name: "Symlink tomcat8 install directory: {{tomcat8_install_dir}}"
+  file:
+    src: "{{tomcat8_install_dir}}"
+    path: /usr/share/tomcat
+    state: link
+
+- name: Change ownership of Tomcat installation
+  file:
+    path: /usr/share/tomcat/
+    owner: tomcat
+    group: tomcat
+    state: directory
+    recurse: yes
+
+- name: Configure Tomcat server
+  template: src=server.xml dest=/usr/share/tomcat/conf/
+
+- name: Configure Tomcat users
+  template: src=tomcat-users.xml dest=/usr/share/tomcat/conf/
+
+- name: Install Tomcat init script
+  template: src=tomcat-initscript.sh dest=/etc/init.d/tomcat mode=0755
+
+- name: Enable init.d script
+  shell: chkconfig tomcat on
+
+# - name: systemd daemon-reload
+#   shell: systemctl daemon-reload
+
+# - name: systemctl is-enabled tomcat
+#   shell: systemctl is-enabled tomcat
+#   register: resp
+#   ignore_errors: true
+# - debug: var=resp
+
+- name: tomcat-8-start
+  service: name=tomcat state=started
+
+- name: wait for tomcat to start
+  wait_for: port={{http_port}}

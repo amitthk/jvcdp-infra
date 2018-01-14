@@ -1,0 +1,42 @@
+image: node:6.9.4
+pipelines:
+  default:
+    - step:
+        script:
+            - echo "Moving to AWS Code Commit!"
+  branches:
+    master:
+      - step:
+          script:
+            - echo "Pushing to Master Branch!"
+            - git remote add codecommit https://$AWS_CODE_ADMIN_USER:$AWS_CODE_ADMIN_PASS@git-codecommit.ap-southeast-1.amazonaws.com/v1/repos/devopscdp
+            - git remote set-url --add --push codecommit https://$AWS_CODE_ADMIN_USER:$AWS_CODE_ADMIN_PASS@git-codecommit.ap-southeast-1.amazonaws.com/v1/repos/devopscdp
+            - git push -f --no-thin codecommit master
+    uat:
+      - step:
+          script:
+            - echo "Pushing to UAT Branch!"
+            - git remote add codecommit https://$AWS_CODE_ADMIN_USER:$AWS_CODE_ADMIN_PASS@git-codecommit.ap-southeast-1.amazonaws.com/v1/repos/devopscdp
+            - git remote set-url --add --push codecommit https://$AWS_CODE_ADMIN_USER:$AWS_CODE_ADMIN_PASS@git-codecommit.ap-southeast-1.amazonaws.com/v1/repos/devopscdp
+            - git push -f --no-thin codecommit uat
+    sit:
+      - step:
+          script:
+            - echo "Pushing to SIT Branch!"
+            - git remote add codecommit https://$AWS_CODE_ADMIN_USER:$AWS_CODE_ADMIN_PASS@git-codecommit.ap-southeast-1.amazonaws.com/v1/repos/devopscdp
+            - git remote set-url --add --push codecommit https://$AWS_CODE_ADMIN_USER:$AWS_CODE_ADMIN_PASS@git-codecommit.ap-southeast-1.amazonaws.com/v1/repos/devopscdp
+            - git push -f --no-thin codecommit sit
+    release:
+      - step:
+          script:
+            - echo "Pushing to SIT Branch!"
+            - git remote add codecommit https://$AWS_CODE_ADMIN_USER:$AWS_CODE_ADMIN_PASS@git-codecommit.ap-southeast-1.amazonaws.com/v1/repos/devopscdp
+            - git remote set-url --add --push codecommit https://$AWS_CODE_ADMIN_USER:$AWS_CODE_ADMIN_PASS@git-codecommit.ap-southeast-1.amazonaws.com/v1/repos/devopscdp
+            - git push -f --no-thin codecommit release
+    develop:
+      - step:
+          script:
+            - echo "Pushing to Develop Branch!"
+            - git remote add codecommit https://$AWS_CODE_ADMIN_USER:$AWS_CODE_ADMIN_PASS@git-codecommit.ap-southeast-1.amazonaws.com/v1/repos/devopscdp
+            - git remote set-url --add --push codecommit https://$AWS_CODE_ADMIN_USER:$AWS_CODE_ADMIN_PASS@git-codecommit.ap-southeast-1.amazonaws.com/v1/repos/devopscdp
+            - git push -f --no-thin codecommit develop

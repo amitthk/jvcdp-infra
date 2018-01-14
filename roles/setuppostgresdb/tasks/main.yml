@@ -1,0 +1,80 @@
+---
+# tasks file for setuppostgresdb
+# - name: "Load host vars"
+#   include_vars: "./group_vars/{{ deploy_host | default('dev') }}.yaml"
+# - name: "Load all vars"
+#   include_vars: "./group_vars/all.yaml"
+
+- name: Ensure python-psycopg2 is installed
+  package:
+    name: python-psycopg2
+    state: present
+  become: true
+
+- name: ensure database is created
+  postgresql_db:
+    name: "{{app_dbname}}"
+    login_host: "{{db_login_host}}"
+    port: "{{db_login_port}}"
+    login_password: "{{db_login_password}}"
+    login_user: "{{db_login_user}}"
+
+- debug:
+    msg:  "login_host: {{db_login_host}} login_user: {{db_login_user}} port: {{db_login_port}} db: {{app_dbname}} name: {{app_dbuser}}"
+
+# This didn't work earlier on RDS because of this bug : https://github.com/ansible/ansible/issues/8547
+- name: ensure user has access to database
+  #become: true
+  #become_user: "{{db_login_user}}"
+  postgresql_user: 
+    login_host: "{{db_login_host}}"
+    login_password: "{{db_login_password}}"
+    login_user: "{{db_login_user}}"
+    port: "{{db_login_port}}"
+    db: "{{app_dbname}}"
+    name: "{{app_dbuser}}"
+    password: "{{app_dbpassword}}"
+    no_password_changes: true
+    state: present
+
+- name: ensure user does not have unnecessary privilege
+  postgresql_user: 
+    login_host: "{{db_login_host}}"
+    port: "{{db_login_port}}"
+    login_password: "{{db_login_password}}"
+    login_user: "{{db_login_user}}"
+    # db: "{{app_dbname}}"
+    name: "{{app_dbuser}}"
+    # password: "{{app_dbpassword}}"
+    no_password_changes: true
+    role_attr_flags: "NOSUPERUSER,NOCREATEDB"
+
+- name: ensure no other user can access the database
+  postgresql_privs: 
+    login_host: "{{db_login_host}}"
+    port: "{{db_login_port}}"
+    login_password: "{{db_login_password}}"
+    login_user: "{{db_login_user}}"
+    db: "{{app_dbname}}"
+    role: PUBLIC
+    type: database
+    priv: ALL
+    state: absent
+
+- debug:
+    msg: "app_dbschemas: {{item}}"
+  with_items:
+    - "{{app_dbschemas}}"
+
+- name: "setup the postgresql schemas"
+  postgresql_schema: 
+    login_host: "{{db_login_host}}"
+    login_password: "{{app_dbpassword}}"
+    login_user: "{{app_dbuser}}"
+    port: "{{db_login_port}}"
+    name: "{{item}}"
+    database: "{{app_dbname}}"
+    owner: "{{app_dbuser}}"
+    state: present
+  with_items:
+    - "{{app_dbschemas}}"

@@ -1,0 +1,9 @@
+---
+base_dir: '~/app'
+user_base_dir: "/home/{{ansible_ssh_user}}/app/"
+tomcat8_file: "apache-tomcat-8.5.24.tar.gz"
+tomcat_base_dir: "/opt/{{ tomcat8_file | regex_replace('.tar.gz')}}"
+project_id: user-api
+warName: users.war
+deploy_dir: users
+s3_bucket_name: jvcdp-repo

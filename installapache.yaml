@@ -1,0 +1,18 @@
+- hosts: "{{ deploy_host | default('dev') }}"
+  gather_facts: false
+  become: false
+  vars:
+    base_dir: "~/app/"
+  tasks:
+    - name: ping the server
+      raw: echo ping-pong
+    - name: install the latest version of Apache httpd
+      yum:
+        name: httpd
+        state: latest 
+      become: true	
+    - name: Restart Apache httpd
+      service:
+        name: httpd
+        state: restarted	
+      become: true		
